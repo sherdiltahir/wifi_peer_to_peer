@@ -16,6 +16,10 @@ import io.flutter.plugin.common.MethodChannel.Result;
 import com.stealthcopter.networktools.SubnetDevices;
 import com.stealthcopter.networktools.subnet.Device;
 
+import org.jetbrains.annotations.NotNull;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -28,10 +32,11 @@ public class WifiP2pPlugin implements FlutterPlugin, MethodCallHandler {
   /// This local reference serves to register the plugin with the Flutter Engine and unregister it
   /// when the Flutter Engine is detached from the Activity
   private MethodChannel channel;
-    ArrayList<Map<String,String>> subnetDetailsArrayList = new ArrayList<>();
+    ArrayList<JSONObject> subnetDetailsArrayList = new ArrayList<>();
 
-    public void findSubnetDevices() {
-        final long startTimeMillis = System.currentTimeMillis();
+     public void findSubnetDevices(@NonNull Result result) {
+
+         final long startTimeMillis = System.currentTimeMillis();
         subnetDetailsArrayList.clear();
         SubnetDevices.fromLocalAddress().findDevices(new SubnetDevices.OnSubnetDeviceFound() {
 
@@ -39,23 +44,38 @@ public class WifiP2pPlugin implements FlutterPlugin, MethodCallHandler {
             public void onDeviceFound(Device device) {
                 SubnetDetails subnetDetails = new SubnetDetails(device.ip, device.mac, device.hostname);
                 Log.d("network", subnetDetails.toString());
-                Map<String, String> networkData = new HashMap<>();
-                networkData.put("mac", subnetDetails.macAddress);
-                networkData.put("ipAddress", subnetDetails.ipAddress);
-                networkData.put("hostName", subnetDetails.deviceName);
-                Log.d("flutter", String.valueOf(networkData));
-                subnetDetailsArrayList.add(networkData);
+
+                JSONObject jsonObject = new JSONObject();
+                try {
+                    jsonObject.put("ipAddress",device.ip);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                try {
+                    jsonObject.put("hostName",device.hostname);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+
+                Log.d("flutter", String.valueOf(jsonObject));
+                subnetDetailsArrayList.add(jsonObject);
             }
 
             @Override
             public void onFinished(ArrayList<Device> devicesFound) {
                 float timeTaken = (System.currentTimeMillis() - startTimeMillis) / 1000.0f;
                 System.out.print(timeTaken);
+    result.success(subnetDetailsArrayList.toString());
+
+
 
             }
 
         });
-    }
+
+
+     }
 
   @Override
   public void onAttachedToEngine(@NonNull FlutterPluginBinding flutterPluginBinding) {
@@ -70,9 +90,7 @@ public class WifiP2pPlugin implements FlutterPlugin, MethodCallHandler {
       result.success("Android " + android.os.Build.VERSION.RELEASE);
     }else if (call.method.equals("helloWorld")) {
 
-       CompletableFuture.runAsync(this::findSubnetDevices).thenRunAsync(()->
-               Log.d("Networks id",subnetDetailsArrayList.toString())
-              ).thenRunAsync(()-> result.success(subnetDetailsArrayList.toString()));
+         findSubnetDevices(result);
 
 
     } else {

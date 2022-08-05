@@ -1,8 +1,9 @@
-import 'package:flutter/material.dart';
 import 'dart:async';
 
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:wifi_p2p/wifi_p2p.dart';
+import 'package:wifi_p2p/controller/wifi_p2p_controller.dart';
+import 'package:wifi_p2p/model/wifi_p2p_model.dart';
 
 void main() {
   runApp(const MyApp());
@@ -16,8 +17,8 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  String _platformVersion = 'Unknown';
-  final _wifiP2pPlugin = WifiP2p();
+  List<WifiP2PModel> _platformVersion = [];
+  final _wifiP2pPlugin = WifiP2PController();
 
   @override
   void initState() {
@@ -27,14 +28,13 @@ class _MyAppState extends State<MyApp> {
 
   // Platform messages are asynchronous, so we initialize in an async method.
   Future<void> initPlatformState() async {
-    String platformVersion;
+    List<WifiP2PModel> platformVersion = [];
     // Platform messages may fail, so we use a try/catch PlatformException.
     // We also handle the message potentially returning null.
     try {
-      platformVersion =
-          await _wifiP2pPlugin.wifiNetwork() ?? 'Unknown plactform version';
+      platformVersion = await _wifiP2pPlugin.getWifiConnection();
     } on PlatformException {
-      platformVersion = 'Failed to get platform version.';
+      platformVersion = [];
     }
 
     // If the widget was removed from the tree while the asynchronous platform
@@ -55,7 +55,12 @@ class _MyAppState extends State<MyApp> {
           title: const Text('Plugin example app'),
         ),
         body: Center(
-          child: Text('$_platformVersion\n'),
+          child: ListView.builder(
+              itemCount: _platformVersion.length,
+              itemBuilder: (context, int index) => ListTile(
+                    title: Text(_platformVersion[index].hostName),
+                    trailing: Text(_platformVersion[index].ipAddress),
+                  )),
         ),
       ),
     );
