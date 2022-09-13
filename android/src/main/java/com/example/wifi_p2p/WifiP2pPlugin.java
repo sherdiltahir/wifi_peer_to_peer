@@ -1,5 +1,9 @@
 package com.example.wifi_p2p;
 
+
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Build;
 import android.util.Log;
 
@@ -16,14 +20,11 @@ import io.flutter.plugin.common.MethodChannel.Result;
 import com.stealthcopter.networktools.SubnetDevices;
 import com.stealthcopter.networktools.subnet.Device;
 
-import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.CompletableFuture;
+
 
 /** WifiP2pPlugin */
 public class WifiP2pPlugin implements FlutterPlugin, MethodCallHandler {
@@ -33,53 +34,68 @@ public class WifiP2pPlugin implements FlutterPlugin, MethodCallHandler {
   /// when the Flutter Engine is detached from the Activity
   private MethodChannel channel;
     ArrayList<JSONObject> subnetDetailsArrayList = new ArrayList<>();
+    SubnetDevices subnetDevices;
+    Context appContext;
+    boolean checkConnectivity(@NonNull Context context){
+        ConnectivityManager connectivityManager =
+                (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetwork = connectivityManager.getActiveNetworkInfo();
 
-     public void findSubnetDevices(@NonNull Result result) {
+        return activeNetwork.getType() == ConnectivityManager.TYPE_WIFI;
 
-         final long startTimeMillis = System.currentTimeMillis();
-        subnetDetailsArrayList.clear();
-        SubnetDevices.fromLocalAddress().findDevices(new SubnetDevices.OnSubnetDeviceFound() {
+    }
 
-            @Override
-            public void onDeviceFound(Device device) {
-                SubnetDetails subnetDetails = new SubnetDetails(device.ip, device.mac, device.hostname);
-                Log.d("network", subnetDetails.toString());
 
-                JSONObject jsonObject = new JSONObject();
-                try {
-                    jsonObject.put("ipAddress",device.ip);
-                } catch (JSONException e) {
-                    e.printStackTrace();
+
+    public void findSubnetDevices(@NonNull Result result) {
+
+        if(checkConnectivity(appContext)){
+            final long startTimeMillis = System.currentTimeMillis();
+            subnetDetailsArrayList.clear();
+            SubnetDevices.fromLocalAddress().findDevices(new SubnetDevices.OnSubnetDeviceFound() {
+
+                @Override
+                public void onDeviceFound(Device device) {
+                    SubnetDetails subnetDetails = new SubnetDetails(device.ip, device.mac, device.hostname);
+                    Log.d("network", subnetDetails.toString());
+
+                    JSONObject jsonObject = new JSONObject();
+                    try {
+                        jsonObject.put("ipAddress", device.ip);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    try {
+                        jsonObject.put("hostName", device.hostname);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
+
+                    Log.d("flutter", String.valueOf(jsonObject));
+                    subnetDetailsArrayList.add(jsonObject);
                 }
-                try {
-                    jsonObject.put("hostName",device.hostname);
-                } catch (JSONException e) {
-                    e.printStackTrace();
+
+                @Override
+                public void onFinished(ArrayList<Device> devicesFound) {
+                    float timeTaken = (System.currentTimeMillis() - startTimeMillis) / 1000.0f;
+                    System.out.print(timeTaken);
+                    result.success(subnetDetailsArrayList.toString());
+
+
                 }
+            });
+        }else{
+            result.success(subnetDetailsArrayList.toString());
 
+        }
 
-                Log.d("flutter", String.valueOf(jsonObject));
-                subnetDetailsArrayList.add(jsonObject);
-            }
-
-            @Override
-            public void onFinished(ArrayList<Device> devicesFound) {
-                float timeTaken = (System.currentTimeMillis() - startTimeMillis) / 1000.0f;
-                System.out.print(timeTaken);
-    result.success(subnetDetailsArrayList.toString());
-
-
-
-            }
-
-        });
-
-
-     }
+    }
 
   @Override
   public void onAttachedToEngine(@NonNull FlutterPluginBinding flutterPluginBinding) {
     channel = new MethodChannel(flutterPluginBinding.getBinaryMessenger(), "wifi_p2p");
+      appContext = flutterPluginBinding.getApplicationContext();
     channel.setMethodCallHandler(this);
   }
 
@@ -88,9 +104,10 @@ public class WifiP2pPlugin implements FlutterPlugin, MethodCallHandler {
   public void onMethodCall(@NonNull MethodCall call, @NonNull Result result) {
     if (call.method.equals("getPlatformVersion")) {
       result.success("Android " + android.os.Build.VERSION.RELEASE);
-    }else if (call.method.equals("helloWorld")) {
+    }else if (call.method.equals("getPeerConnection")) {
 
-         findSubnetDevices(result);
+            findSubnetDevices(result);
+
 
 
     } else {

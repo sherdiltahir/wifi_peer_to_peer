@@ -11,13 +11,15 @@ class MethodChannelWifiP2p extends WifiP2pPlatform {
 
   @override
   Future<String?> getPlatformVersion() async {
-    final version = await methodChannel.invokeMethod<String>('getPlatformVersion');
+    final version =
+        await methodChannel.invokeMethod<String>('getPlatformVersion');
     return version;
   }
 
   @override
   Future<String?> wifiNetwork() async {
-    final wifiP2P = await methodChannel.invokeMethod<String>('helloWorld');
+    final wifiP2P =
+        await methodChannel.invokeMethod<String>('getPeerConnection');
     return wifiP2P;
   }
 }
