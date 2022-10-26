@@ -20,12 +20,6 @@ class _MyAppState extends State<MyApp> {
   List<WifiP2PModel> _platformVersion = [];
   final _wifiP2pPlugin = WifiP2PController();
 
-  @override
-  void initState() {
-    super.initState();
-    initPlatformState();
-  }
-
   // Platform messages are asynchronous, so we initialize in an async method.
   Future<void> initPlatformState() async {
     List<WifiP2PModel> platformVersion = [];
@@ -53,6 +47,13 @@ class _MyAppState extends State<MyApp> {
       home: Scaffold(
         appBar: AppBar(
           title: const Text('Plugin example app'),
+          actions: [
+            IconButton(
+                onPressed: () {
+                  initPlatformState();
+                },
+                icon: Icon(Icons.refresh))
+          ],
         ),
         body: Center(
           child: ListView.builder(
