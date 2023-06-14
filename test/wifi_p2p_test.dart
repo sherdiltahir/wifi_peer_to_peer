@@ -10,6 +10,18 @@ class MockWifiP2pPlatform
 
   @override
   Future<String?> getPlatformVersion() => Future.value('42');
+
+  @override
+  Future<String?> connectedWifiNetwork() {
+    // TODO: implement connectedWifiNetwork
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<String?> getWifiRouters() {
+    // TODO: implement getWifiRouters
+    throw UnimplementedError();
+  }
 }
 
 void main() {

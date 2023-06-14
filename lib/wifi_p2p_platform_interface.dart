@@ -14,7 +14,7 @@ abstract class WifiP2pPlatform extends PlatformInterface {
   ///
   /// Defaults to [MethodChannelWifiP2p].
   static WifiP2pPlatform get instance => _instance;
-  
+
   /// Platform-specific implementations should set this with their own
   /// platform-specific class that extends [WifiP2pPlatform] when
   /// they register themselves.
@@ -26,7 +26,12 @@ abstract class WifiP2pPlatform extends PlatformInterface {
   Future<String?> getPlatformVersion() {
     throw UnimplementedError('platformVersion() has not been implemented.');
   }
-  Future<String?> wifiNetwork() {
+
+  Future<String?> connectedWifiNetwork() {
+    throw UnimplementedError('wifIp2p() has not been implemented.');
+  }
+
+  Future<String?> getWifiRouters() {
     throw UnimplementedError('wifIp2p() has not been implemented.');
   }
 }

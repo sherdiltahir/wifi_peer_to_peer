@@ -7,12 +7,10 @@ class WifiP2PController {
   List<WifiP2PModel> wifiP2PModel = <WifiP2PModel>[];
   WifiP2p wifiP2p = WifiP2p();
   Future<List<WifiP2PModel>> getWifiConnection() async {
-    String? wifiNetworks = await wifiP2p.wifiNetwork() ?? "";
+    String? wifiNetworks = await wifiP2p.connectedWifiNetwork() ?? "";
     if (wifiNetworks.isNotEmpty) {
       var data = jsonDecode(wifiNetworks);
-/*
-      Map<String, dynamic> data = jsonDecode(wifiNetworks);
-*/
+
       wifiP2PModel = List.generate(
           data.length,
           (index) => WifiP2PModel(

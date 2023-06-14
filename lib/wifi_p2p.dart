@@ -5,8 +5,12 @@ class WifiP2p {
   Future<String?> getPlatformVersion() {
     return WifiP2pPlatform.instance.getPlatformVersion();
   }
-  Future<String?> wifiNetwork() {
-    return WifiP2pPlatform.instance.wifiNetwork();
+  Future<String?> connectedWifiNetwork() {
+    return WifiP2pPlatform.instance.connectedWifiNetwork();
   }
+
+  Future<String?> getWifiRouters(){
+    return WifiP2pPlatform.instance.getWifiRouters();
+}
 }
 
