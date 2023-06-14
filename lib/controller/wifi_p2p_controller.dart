@@ -1,12 +1,16 @@
 import 'dart:convert';
 
+
+import 'package:wifi_p2p/model/wifi_network_model.dart';
 import 'package:wifi_p2p/model/wifi_p2p_model.dart';
 import 'package:wifi_p2p/wifi_p2p.dart';
 
 class WifiP2PController {
-  List<WifiP2PModel> wifiP2PModel = <WifiP2PModel>[];
-  WifiP2p wifiP2p = WifiP2p();
-  Future<List<WifiP2PModel>> getWifiConnection() async {
+  WifiP2PController._();
+  static WifiP2p wifiP2p = WifiP2p();
+  static Future<List<WifiP2PModel>> getWifiConnection() async {
+    List<WifiP2PModel> wifiP2PModel = <WifiP2PModel>[];
+
     String? wifiNetworks = await wifiP2p.connectedWifiNetwork() ?? "";
     if (wifiNetworks.isNotEmpty) {
       var data = jsonDecode(wifiNetworks);
@@ -20,5 +24,12 @@ class WifiP2PController {
     } else {
       return [];
     }
+  }
+
+  static Future<List<WifiNetworkModel>> getWifiNetwork() async {
+    String? data =await wifiP2p.getWifiRouters() ?? "[]";
+    var convertedData = jsonDecode(data);
+    return List.generate(convertedData.length, (index) => WifiNetworkModel.fromJson(convertedData[index]));
+
   }
 }

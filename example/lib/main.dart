@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:wifi_p2p/controller/wifi_p2p_controller.dart';
 import 'package:wifi_p2p/model/wifi_p2p_model.dart';
+import 'package:wifi_p2p_example/wifi_network_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -18,7 +19,6 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   List<WifiP2PModel> _platformVersion = [];
-  final _wifiP2pPlugin = WifiP2PController();
 
   @override
   void initState() {
@@ -32,7 +32,7 @@ class _MyAppState extends State<MyApp> {
     // Platform messages may fail, so we use a try/catch PlatformException.
     // We also handle the message potentially returning null.
     try {
-      platformVersion = await _wifiP2pPlugin.getWifiConnection();
+      platformVersion = await WifiP2PController.getWifiConnection();
     } on PlatformException {
       platformVersion = [];
     }
@@ -50,18 +50,39 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(
-          title: const Text('Plugin example app'),
-        ),
-        body: Center(
-          child: ListView.builder(
-              itemCount: _platformVersion.length,
-              itemBuilder: (context, int index) => ListTile(
-                    title: Text(_platformVersion[index].hostName),
-                    trailing: Text(_platformVersion[index].ipAddress),
-                  )),
-        ),
+      home: HomeScreen(platformVersion: _platformVersion),
+    );
+  }
+}
+
+class HomeScreen extends StatelessWidget {
+  const HomeScreen({
+    super.key,
+    required List<WifiP2PModel> platformVersion,
+  }) : _platformVersion = platformVersion;
+
+  final List<WifiP2PModel> _platformVersion;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Plugin example app'),
+        actions: [
+          ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).push(MaterialPageRoute(builder: (context)=>WifiNetworkScreen()));
+              },
+              child: const Text("show"))
+        ],
+      ),
+      body: Center(
+        child: ListView.builder(
+            itemCount: _platformVersion.length,
+            itemBuilder: (context, int index) => ListTile(
+                  title: Text(_platformVersion[index].hostName),
+                  trailing: Text(_platformVersion[index].ipAddress),
+                )),
       ),
     );
   }

@@ -4,10 +4,9 @@ import 'package:wifi_p2p/wifi_p2p_platform_interface.dart';
 import 'package:wifi_p2p/wifi_p2p_method_channel.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
-class MockWifiP2pPlatform 
+class MockWifiP2pPlatform
     with MockPlatformInterfaceMixin
     implements WifiP2pPlatform {
-
   @override
   Future<String?> getPlatformVersion() => Future.value('42');
 
@@ -35,7 +34,7 @@ void main() {
     WifiP2p wifiP2pPlugin = WifiP2p();
     MockWifiP2pPlatform fakePlatform = MockWifiP2pPlatform();
     WifiP2pPlatform.instance = fakePlatform;
-  
+
     expect(await wifiP2pPlugin.getPlatformVersion(), '42');
   });
 }
