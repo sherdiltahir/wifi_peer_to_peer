@@ -3,7 +3,7 @@ class WifiNetworkModel {
   String? macAddress;
   int? frequency;
   int? strength;
-  String? capabilities;
+  String? channelWidth;
   int? level;
 
   WifiNetworkModel(
@@ -11,7 +11,7 @@ class WifiNetworkModel {
         this.macAddress,
         this.frequency,
         this.strength,
-        this.capabilities,
+        this.channelWidth,
         this.level});
 
   WifiNetworkModel.fromJson(Map<String, dynamic> json) {
@@ -19,7 +19,7 @@ class WifiNetworkModel {
     macAddress = json['macAddress'];
     frequency = json['frequency'];
     strength = json['strength'];
-    capabilities = json['capabilities'];
+    channelWidth = json['channelWidth'];
     level = json['level'];
   }
 
@@ -29,7 +29,7 @@ class WifiNetworkModel {
     data['macAddress'] = macAddress;
     data['frequency'] = frequency;
     data['strength'] = strength;
-    data['capabilities'] = capabilities;
+    data['channelWidth'] = channelWidth;
     data['level'] = level;
     return data;
   }

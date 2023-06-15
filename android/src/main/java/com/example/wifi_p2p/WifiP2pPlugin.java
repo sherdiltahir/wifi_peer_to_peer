@@ -132,6 +132,7 @@ public class WifiP2pPlugin implements FlutterPlugin, MethodCallHandler {
     }
 
 
+    @RequiresApi(api = Build.VERSION_CODES.M)
     private List<JSONObject> getWifiNetwork() {
         wifiManager = (WifiManager) appContext.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
         if (!wifiManager.isWifiEnabled()) {
@@ -166,12 +167,12 @@ public class WifiP2pPlugin implements FlutterPlugin, MethodCallHandler {
                     jsonObject.put("strength", signalStrength);
                 } catch (JSONException e) {
                     throw new RuntimeException(e);
-                }
-                try {
-                    jsonObject.put("capabilities", scanResult.capabilities);
+                }     try {
+                    jsonObject.put("channelWidth", scanResult.channelWidth);
                 } catch (JSONException e) {
                     throw new RuntimeException(e);
                 }
+
                 try {
                     jsonObject.put("level", scanResult.level);
                 } catch (JSONException e) {
