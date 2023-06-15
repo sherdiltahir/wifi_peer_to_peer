@@ -3,7 +3,7 @@ class WifiNetworkModel {
   String? macAddress;
   int? frequency;
   int? strength;
-  String? channelWidth;
+  int? channelWidth;
   int? level;
 
   WifiNetworkModel(
