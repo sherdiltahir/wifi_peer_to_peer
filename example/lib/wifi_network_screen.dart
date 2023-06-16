@@ -28,7 +28,7 @@ class _WifiNetworkScreenState extends State<WifiNetworkScreen> {
                 return Text(snapShot.data![index].name!);
               });
         }else{
-          return Center(child: CircularProgressIndicator(),);
+          return const Center(child: CircularProgressIndicator(),);
         }
       }),
     );
