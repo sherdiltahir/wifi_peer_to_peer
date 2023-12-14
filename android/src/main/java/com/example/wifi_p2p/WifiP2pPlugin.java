@@ -11,7 +11,6 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
-import androidx.lifecycle.Lifecycle;
 
 import io.flutter.embedding.engine.plugins.FlutterPlugin;
 import io.flutter.plugin.common.MethodCall;
@@ -48,6 +47,7 @@ public class WifiP2pPlugin implements FlutterPlugin, MethodCallHandler {
                 (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetwork = connectivityManager.getActiveNetworkInfo();
 
+        assert activeNetwork != null;
         return activeNetwork.getType() == ConnectivityManager.TYPE_WIFI;
 
     }
@@ -117,7 +117,6 @@ public class WifiP2pPlugin implements FlutterPlugin, MethodCallHandler {
                 break;
             case "getWifiRouters":
               result.success(getWifiNetwork().toString());
-                getWifiNetwork();
                 break;
             default:
                 result.notImplemented();
@@ -132,7 +131,6 @@ public class WifiP2pPlugin implements FlutterPlugin, MethodCallHandler {
     }
 
 
-    @RequiresApi(api = Build.VERSION_CODES.M)
     private List<JSONObject> getWifiNetwork() {
         wifiManager = (WifiManager) appContext.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
         if (!wifiManager.isWifiEnabled()) {
@@ -140,9 +138,8 @@ public class WifiP2pPlugin implements FlutterPlugin, MethodCallHandler {
 
             return Collections.emptyList();
         }
-
         List<ScanResult> scanResults = wifiManager.getScanResults();
-        List<JSONObject> jsonObjectList = new ArrayList<JSONObject>();
+        List<JSONObject> jsonObjectList = new ArrayList<>();
         if (!scanResults.isEmpty()) {
             for (ScanResult scanResult : scanResults) {
                 JSONObject jsonObject = new JSONObject();
@@ -167,8 +164,11 @@ public class WifiP2pPlugin implements FlutterPlugin, MethodCallHandler {
                     jsonObject.put("strength", signalStrength);
                 } catch (JSONException e) {
                     throw new RuntimeException(e);
-                }     try {
-                    jsonObject.put("channelWidth", scanResult.channelWidth);
+                }
+                try {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        jsonObject.put("channelWidth", scanResult.channelWidth);
+                    }
                 } catch (JSONException e) {
                     throw new RuntimeException(e);
                 }
